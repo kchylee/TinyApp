@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Shortened URL</title>
+</head>
+<body>
+  <header>
+      <% include ./partials/_header %>
+  </header>
+  <ul>
+      <!-- Display single URL and its shortened form -->
+      <!-- <li>Full URL: <%= URL %></li> -->
+      <li>Short URL: <%= shortURL %></li>
+
+      <form method="POST" action="/urls/<%= shortURL %>">
+        <input id="longURL" type="text" name="longURL" placeholder="http://<%= URL %>" style="width: 300px">
+        <input type="submit" value="Update URL">
+      </form>
+  </ul>
+</body>
+</html>
