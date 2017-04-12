@@ -1,1 +1,17 @@
 Tiny URL
+  <% if(!username){ %>
+    <form method="POST" action="/login">
+      <input id="username" type="text" name="username">
+      <input id="submit" type="submit" value="Submit">
+    </form>
+  <% }else{ %>
+    <%= username %>
+    <form method="POST" action="/logout">
+      <button>Log Out</button>
+    </form>
+  <% } %>
+
+
+
+
+

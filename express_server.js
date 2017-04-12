@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 const PORT = process.env.PORT || 8080;
 
 app.set("view engine", "ejs");
@@ -11,8 +13,22 @@ let urlDataBase = {
   "9sm5xK": "http://www.google.com"
 };
 
-app.get("/", function(req, res){
-  res.end('Hello!');
+app.get("/", function(req, res){//Hello page with username, and no username when logged out
+  if (req.cookies["username"] === undefined){
+    res.end("Hello!");
+  }else{
+    res.end(`Hello! ${req.cookies["username"]}`);
+  }
+});
+
+app.post("/login", (req, res) => {//Receives POST request from _header
+  res.cookie("username", req.body.username);
+  res.redirect("/");
+});
+
+app.post("/logout", (req, res) => {//Receives POST request from _header
+  res.clearCookie("username", req.cookies["username"]);
+  res.redirect("/");
 });
 
 app.get("/urls.json", function(req, res){
@@ -20,7 +36,7 @@ app.get("/urls.json", function(req, res){
 });
 
 app.get("/urls", (req, res) => {//Returns ALL url pairs in urlDataBase
-  let templateVars = {urls: urlDataBase};
+  let templateVars = {urls: urlDataBase, username: req.cookies["username"]};
   res.render("urls_index", templateVars);
 });
 
@@ -40,7 +56,7 @@ app.post("/urls/:id/delete", (req, res) => {//Take POST request to delete data e
 })
 
 app.get("/urls/:id", (req, res) => {//Prints single long-short url pair as specified
-  let templateVars = {shortURL: req.params.id, URL: urlDataBase[req.params.id]};
+  let templateVars = {shortURL: req.params.id, URL: urlDataBase[req.params.id], username: req.cookies["username"]};
   res.render("urls_show", templateVars);
 });
 
