@@ -11,9 +11,15 @@
       <!-- Add your EJS code here -->
 
     <% for (i in urls){ %>
-      <form method="POST" action="/urls/<%= i %>/delete"><li><%= i %> : <%= urls[i] %>  <a href="/urls/<%= i %>">Edit</a>  <button style="width: 50px">Delete</button></li></form>
-    <% }; %>
 
+        <form method="POST" action="/urls/<%= i %>/delete">
+            <li><%= i %> : <%= urls[i] %>
+              <a href="/urls/<%= i %>">Edit</a>
+              <button style="width: 50px">Delete</button>
+            </li>
+        </form>
+
+    <% }; %>
       <li><a href="/urls/new">Shorten your URL</a></li>
   </ul>
 </body>
