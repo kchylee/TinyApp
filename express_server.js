@@ -8,21 +8,23 @@ app.use(cookieSession({
   keys: ["key1", "key2"]
 }));
 const bcrypt = require("bcrypt");
-// app.use(bcrypt());
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
+app.use(express.static(__dirname + '/public'));
 
 let urlDataBase = {
   "b2xVn2": {
     id:"b2xVn2",
     long: "http://www.lighthouselabs.ca",
-    userID: "skratchbastid"
+    userID: "skratchbastid",
+    clickCount: 0
   },
   "9sm5xK": {
     id: "9sm5xK",
     long: "http://www.google.com",
-    userID: "thevinylkiller"
+    userID: "thevinylkiller",
+    clickCount: 0
   }
 };
 
@@ -42,15 +44,20 @@ let users = {
 //Hello page with username, and no username when logged out
 app.get("/", function(req, res){
   if (req.session.user_id === undefined){
-    res.send("Hello!");
+    res.redirect("/login");
   }else{
-    res.send(`Hello! ${req.session.user_id}`);
+    res.redirect("/urls");
   }
 });
 
 //Receives GET request from broser for registration page
 app.get("/register", (req, res) => {
-  res.render("register");
+  if(!users[req.session.user_id]){
+    res.status(200);
+    res.render("register");
+  }else{
+    res.redirect("/");
+  }
 })
 
 //Receives POST request from register.ejs to parse email and password
@@ -71,14 +78,18 @@ app.post("/register", (req, res) => {
   users[user].email = req.body.email;
   users[user].password = bcrypt.hashSync(req.body.password, 10);
   req.session.user_id = user;
-  // res.cookie("user_id", req.session.user_id);
   console.log(users);
   res.redirect("/")
 });
 
 //Receives GET request from header log-in button
 app.get("/login", (req, res) => {
-  res.render("login");
+  if (!users[req.session.user_id]){
+    res.status(200);
+    res.render("login");
+  }else{
+    res.redirect("/");
+  }
 })
 
 //Receives POST request from login page
@@ -86,19 +97,18 @@ app.post("/login", (req, res) => {
   for (i in users){
     if (users[i].email === req.body.email && bcrypt.compareSync(req.body.password, users[i].password)){
       req.session.user_id = users[i].id;
-      // res.cookie("user_id", req.session.user_id);
       console.log(req.session.user_id);
       res.redirect("/");
       return;
     }
   }
-  res.status(403).end("Error 403: Wrong email and/or password");
+  res.status(401);
+  res.render("error401_r");
 });
 
 //Receives POST request from _header
 app.post("/logout", (req, res) => {
   req.session = null;
-  // res.clearCookie("user_id", req.session.user_id);
   res.redirect("/");
 });
 
@@ -108,36 +118,58 @@ app.get("/urls.json", function(req, res){
 
 //Returns ALL url pairs in urlDataBase
 app.get("/urls", (req, res) => {
-  let templateVars = {urls: {}, user: req.session.user_id};
-  for (i in urlDataBase){
-    console.log("userID: " + urlDataBase[i].userID);
-    console.log("cookie: " + req.session.user_id);
-    if(req.session.user_id == urlDataBase[i].userID){
-      templateVars.urls[urlDataBase[i].id] = urlDataBase[i].long;
-      console.log("urls " + urlDataBase[i].long + " passed to index page");
+  if (!users[req.session.user_id]){
+    res.status(401);
+    res.render("error401");
+  }else{
+    res.status(200);
+    let templateVars = {urls: {}, user: users[req.session.user_id]};
+    for (i in urlDataBase){
+      console.log("userID: " + urlDataBase[i].userID);
+      console.log("cookie: " + req.session.user_id);
+      if(req.session.user_id == urlDataBase[i].userID){
+        templateVars.urls[urlDataBase[i].id] = {};
+        templateVars.urls[urlDataBase[i].id].shortURL = urlDataBase[i].id;
+        templateVars.urls[urlDataBase[i].id].longURL = urlDataBase[i].long;
+        templateVars.urls[urlDataBase[i].id].click = urlDataBase[i].clickCount;
+        console.log("urlDataBase click count passed to index: " + urlDataBase[i].clickCount)
+        console.log("urls " + urlDataBase[i].long + " passed to index page");
+      }
     }
+    res.render("urls_index", templateVars);
   }
-  res.render("urls_index", templateVars);
 });
 
 //Gets POST request from urls_new.ejs after user input
 app.post("/urls", (req, res) => {
-  shortURL = generateRandomString(6);
-  urlDataBase[shortURL] = {};
-  urlDataBase[shortURL].id = shortURL;
-  urlDataBase[shortURL].long = "http://" + req.body.longURL;
-  urlDataBase[shortURL].userID = req.session.user_id;
-  console.log(urlDataBase);
-  res.redirect(`/urls/${shortURL}`);
+  if(!req.session.user_id){
+    res.status(401);
+    res.render("error401");
+  }else{
+    shortURL = generateRandomString(6);
+    urlDataBase[shortURL] = {};
+    urlDataBase[shortURL].id = shortURL;
+    if(req.body.longURL.includes("http")){
+      var sliceIndex = req.body.longURL.indexOf("//");
+      req.body.longURL = req.body.longURL.slice(sliceIndex+2);
+    }
+    urlDataBase[shortURL].long = "http://" + req.body.longURL;
+    urlDataBase[shortURL].userID = req.session.user_id;
+    urlDataBase[shortURL].clickCount = 0;
+    console.log(urlDataBase);
+    res.redirect(`/urls/${shortURL}`);
+  }
 });
 
 //Prints user form for url input
 app.get("/urls/new", (req, res) => {
   if(!req.session.user_id){
-    res.redirect("/login");
+    res.status(401);
+    res.render("error401");
   }else{
-    let templateVars = {user: req.session.user_id};
-  res.render("urls_new", templateVars);
+    res.status(200);
+    let templateVars = {user: users[req.session.user_id]};
+    res.render("urls_new", templateVars);
   }
 });
 
@@ -153,24 +185,53 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //Prints single long-short url pair as specified
 app.get("/urls/:id", (req, res) => {
-  let templateVars = {shortURL: req.params.id, URL: urlDataBase[req.params.id], user: req.session.user_id};
+  if (!urlDataBase.hasOwnProperty(req.params.id)){
+    res.status(404);
+    res.render("error404");
+  }
+  if (!req.session.user_id){
+    res.status(401);
+    res.render("error401");
+  }
+  if(req.session.user_id !== urlDataBase[req.params.id].userID){
+    res.status(403);
+    res.render("error403");
+  }
+  res.status(200);
+  let templateVars = {shortURL: req.params.id, URL: urlDataBase[req.params.id], user: users[req.session.user_id]};
   res.render("urls_show", templateVars);
 });
+
 //Takes POST request from urls_show to UPDATE shortURL
 app.post("/urls/:id", (req, res) => {
-  if(req.session.user_id == urlDataBase[req.params.id].userID){
-    urlDataBase[req.params.id].long = req.body.longURL;
-  }else{
-    res.send("Not Authorized");
+  if(!urlDataBase.hasOwnProperty(req.params.id)){
+    res.status(404);
+    res.render("error404");
   }
-  res.redirect("/urls");
+  if(!req.session.user_id){
+    res.status(401);
+    res.render("error401");
+  }
+  if(req.session.user_id == urlDataBase[req.params.id].userID){
+    urlDataBase[req.params.id].long = 'http://' + req.body.longURL;
+    urlDataBase[req.params.id].clickCount = 0;
+    res.redirect(`/urls/${req.params.id}`);
+  }else{
+    res.status(403);
+    res.render("error403");
+  }
 })
 
 //Redirects page based on shortURL in request
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDataBase[req.params.shortURL].long;
-  console.log(longURL);
-  res.redirect(longURL);
+  if(urlDataBase.hasOwnProperty(req.params.shortURL)){
+    urlDataBase[req.params.shortURL].clickCount += 1;
+    console.log(urlDataBase[req.params.shortURL]);
+    res.redirect(urlDataBase[req.params.shortURL].long);
+  }else{
+    res.status(404);
+    res.render("error404");
+  }
 });
 
 app.listen(PORT, () => {

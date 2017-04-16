@@ -1,5 +1,4 @@
-Tiny URL
-
+<h1>Tiny App</h1>
   <% if(!user){ %>
     <form method="GET" action="/login"><!--GETs log-in page-->
       <input type="submit" value="Log In">
@@ -9,13 +8,11 @@ Tiny URL
       <input type="submit" value="Register">
     </form>
   <% }else{ %>
-    <%= user %>
+    <h6><%= user.email %></h6>
+    <form method="GET" action="/urls">
+      <input type="submit" value="My Links">
+    </form>
     <form method="POST" action="/logout"><!--POSTs to log out-->
       <input type="submit" value="Log Out">
     </form>
   <% } %>
-
-
-
-
-

@@ -1,0 +1,35 @@
+body {
+  font-family: 'Press Start 2P', helvetica;
+  text-align: center;
+  background-color: #B8FBEC;
+  margin-left: 300px;
+  margin-right: 300px;
+}
+
+h6 {
+  margin-top: 10px;
+  margin-bottom: 10px ;
+}
+
+li {
+  text-align: left;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+input {
+  font-family: 'Press Start 2P', helvetica;
+  border-color: white;
+  height: 20px;
+}
+
+button {
+  font-family: 'Press Start 2P', helvetica;
+  border-color: white;
+  margin-bottom: 20px;
+  margin-top: 0px;
+}
+
+#longURL {
+  border-color: black;
+}

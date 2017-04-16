@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <title>URL List</title>
-</head>
+<% include ./partials/_head %>
 <body>
   <header>
     <% include ./partials/_header %>
   </header>
   <ul>
-      <!-- Add your EJS code here -->
-
     <% for (i in urls){ %>
-
-        <form method="POST" action="/urls/<%= i %>/delete">
-            <li><%= i %> : <%= urls[i] %>
-              <a href="/urls/<%= i %>">Edit</a>
-              <button style="width: 50px">Delete</button>
-            </li>
-        </form>
-
+      <form method="POST" action="/urls/<%= i %>/delete">
+        <li><%= urls[i].shortURL %> : <%= urls[i].longURL %><br>
+        <% if (urls[i].click > 1){ %>
+          <h6>Visited <%= urls[i].click %> times</h6>
+        <% }else if (urls[i].click == 0){ %>
+          <h6>No visits yet</h6>
+        <% }else{ %>
+          <h6>Visited <%= urls[i].click %> time</h6>
+        <% } %>
+        <button id="edit"><a href="/urls/<%= i %>" style="text-decoration: none">Edit</a></button>
+        <input id="delete" type="submit" value="Delete">
+        </li>
+      </form>
     <% }; %>
-      <li><a href="/urls/new">Shorten your URL</a></li>
   </ul>
+  <a href="/urls/new">Create a new short link</a>
 </body>
+
 </html>
