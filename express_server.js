@@ -5,7 +5,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieSession = require("cookie-session");
 app.use(cookieSession({
   name: "session",
-  keys: ["key1", "key2"]
+  keys: ["N0vv4y", "_fUgg3t4b0Ut1t_"]
 }));
 const bcrypt = require("bcrypt");
 const PORT = process.env.PORT || 3000;
@@ -78,7 +78,6 @@ app.post("/register", (req, res) => {
   users[user].email = req.body.email;
   users[user].password = bcrypt.hashSync(req.body.password, 10);
   req.session.user_id = user;
-  console.log(users);
   res.redirect("/")
 });
 
@@ -97,7 +96,6 @@ app.post("/login", (req, res) => {
   for (i in users){
     if (users[i].email === req.body.email && bcrypt.compareSync(req.body.password, users[i].password)){
       req.session.user_id = users[i].id;
-      console.log(req.session.user_id);
       res.redirect("/");
       return;
     }
@@ -125,15 +123,11 @@ app.get("/urls", (req, res) => {
     res.status(200);
     let templateVars = {urls: {}, user: users[req.session.user_id]};
     for (i in urlDataBase){
-      console.log("userID: " + urlDataBase[i].userID);
-      console.log("cookie: " + req.session.user_id);
       if(req.session.user_id == urlDataBase[i].userID){
         templateVars.urls[urlDataBase[i].id] = {};
         templateVars.urls[urlDataBase[i].id].shortURL = urlDataBase[i].id;
         templateVars.urls[urlDataBase[i].id].longURL = urlDataBase[i].long;
         templateVars.urls[urlDataBase[i].id].click = urlDataBase[i].clickCount;
-        console.log("urlDataBase click count passed to index: " + urlDataBase[i].clickCount)
-        console.log("urls " + urlDataBase[i].long + " passed to index page");
       }
     }
     res.render("urls_index", templateVars);
@@ -156,7 +150,6 @@ app.post("/urls", (req, res) => {
     urlDataBase[shortURL].long = "http://" + req.body.longURL;
     urlDataBase[shortURL].userID = req.session.user_id;
     urlDataBase[shortURL].clickCount = 0;
-    console.log(urlDataBase);
     res.redirect(`/urls/${shortURL}`);
   }
 });
@@ -213,6 +206,10 @@ app.post("/urls/:id", (req, res) => {
     res.render("error401");
   }
   if(req.session.user_id == urlDataBase[req.params.id].userID){
+    if(req.body.longURL.includes("http")){
+      var sliceIndex = req.body.longURL.indexOf("//");
+      req.body.longURL = req.body.longURL.slice(sliceIndex+2);
+    }
     urlDataBase[req.params.id].long = 'http://' + req.body.longURL;
     urlDataBase[req.params.id].clickCount = 0;
     res.redirect(`/urls/${req.params.id}`);
@@ -226,7 +223,6 @@ app.post("/urls/:id", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   if(urlDataBase.hasOwnProperty(req.params.shortURL)){
     urlDataBase[req.params.shortURL].clickCount += 1;
-    console.log(urlDataBase[req.params.shortURL]);
     res.redirect(urlDataBase[req.params.shortURL].long);
   }else{
     res.status(404);
@@ -235,7 +231,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
 
 //from 48 to 122
