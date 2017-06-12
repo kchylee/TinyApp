@@ -7,8 +7,9 @@
   </header>
   <ul>
     <% for (i in urls){ %>
+      <% let fullLink = "localhost:3000/u/" + urls[i].shortURL; %>
       <form method="POST" action="/urls/<%= i %>/delete">
-        <li><%= urls[i].shortURL %> : <%= urls[i].longURL %><br>
+        <li>localhost:3000/u/<%= urls[i].shortURL %></a><br/><%= urls[i].longURL %><br/>
         <% if (urls[i].click > 1){ %>
           <h6>Visited <%= urls[i].click %> times</h6>
         <% }else if (urls[i].click == 0){ %>
