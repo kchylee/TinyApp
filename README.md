@@ -12,4 +12,4 @@ It was built using EJS and Express.js
 
 ## Accessing websites through shortened URL's
 
-All of your short URL's are available in My Links. To access the sites, copy URLs beginning with "localhost:3000/u/" and paste them in your browser address bar.
+All of your short URL's are available in My Links. To access the sites, copy URLs beginning with "localhost:3000/u/" and paste them in your browser address bar. It isn't exactly shorter than the original URLs, but it's only because it's on a local machine! This won't be an issue once it's up and running on a domain with a short name.
