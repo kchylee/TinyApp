@@ -12,5 +12,4 @@ It was built using EJS and Express.js
 
 ## Accessing websites through shortened URL's
 
-All of your short URL's will be accessible in My Links. In order to access your saved websites through shortened URL's, type this in your browser address bar: `localhost:3000/u/your-6-character-shortURL`. This feature will be improved. Updates to come.
-
+All of your short URL's are available in My Links. To access the sites, copy URLs beginning with "localhost:3000/u/" and paste them in your browser address bar.
