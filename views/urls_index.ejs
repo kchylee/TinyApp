@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<% include ./partials/_head %>
+<body>
+  <header>
+    <% include ./partials/_header %>
+  </header>
+  <ul>
+    <% for (i in urls){ %>
+      <% let fullLink = "localhost:3000/u/" + urls[i].shortURL; %>
+      <form method="POST" action="/urls/<%= i %>/delete">
+        <li>localhost:3000/u/<%= urls[i].shortURL %></a><br/><%= urls[i].longURL %><br/>
+        <% if (urls[i].click > 1){ %>
+          <h6>Visited <%= urls[i].click %> times</h6>
+        <% }else if (urls[i].click == 0){ %>
+          <h6>No visits yet</h6>
+        <% }else{ %>
+          <h6>Visited <%= urls[i].click %> time</h6>
+        <% } %>
+        <button id="edit"><a href="/urls/<%= i %>" style="text-decoration: none">Edit</a></button>
+        <input id="delete" type="submit" value="Delete">
+        </li>
+      </form>
+    <% }; %>
+  </ul>
+  <a href="/urls/new">Create a new short link</a>
+</body>
+
+</html>

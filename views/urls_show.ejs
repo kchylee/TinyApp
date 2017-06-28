@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<% include ./partials/_head %>
+<body>
+  <header>
+      <% include ./partials/_header %>
+  </header>
+  <ul>
+    <li>Short URL: <%= shortURL %></li>
+    <li>Long URL: <%= URL.long %></li>
+  </ul>
+  <form method="POST" action="/urls/<%= shortURL %>">
+    <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 400px" required>
+    <br>
+    <input type="submit" value="Update URL">
+  </form>
+
+  <form method="POST" action="/urls/<%= shortURL %>/delete">
+    <input type="submit" value="Delete">
+  </form>
+</body>
+</html>
